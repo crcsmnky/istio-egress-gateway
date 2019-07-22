@@ -1,0 +1,14 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: gw-egress
+spec:
+  selector:
+    istio: egressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - 35.202.165.84

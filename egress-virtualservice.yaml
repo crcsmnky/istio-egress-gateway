@@ -1,0 +1,32 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: vs-httpbin-egress
+spec:
+  hosts:
+  - 35.202.165.84
+  gateways:
+  - gw-egress
+  - mesh
+  http:
+  - match:
+    - gateways:
+      - mesh
+      port: 80
+    route:
+    - destination:
+        host: istio-egressgateway.istio-system.svc.cluster.local
+        subset: httpbin
+        port:
+          number: 80
+      weight: 100
+  - match:
+    - gateways:
+      - gw-egress
+      port: 80
+    route:
+    - destination:
+        host: httpbin
+        port:
+          number: 80
+      weight: 100
