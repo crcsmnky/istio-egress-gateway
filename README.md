@@ -56,35 +56,53 @@ kubectl apply -f samples/sleep/sleep.yaml
 ```
 
 ```bash
-gcloud compute --project=sndp-next instances create httpbin \
+gcloud compute instances create httpbin \
     --zone=us-central1-f \
     --machine-type=n1-standard-1 \
     --subnet=default \
     --network-tier=PREMIUM \
     --maintenance-policy=MIGRATE \
-    --service-account=1059929198189-compute@developer.gserviceaccount.com \
-    --scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/trace.append \
+    --scopes=cloud-platform \
     --image=cos-stable-75-12105-97-0 \
     --image-project=cos-cloud \
     --boot-disk-size=10GB \
     --boot-disk-type=pd-standard \
-    --boot-disk-device-name=httpbin
+    --boot-disk-device-name=httpbin \
+    --tags=vm-egress-gateway-test
+
 ```
 
 ```bash
+gcloud compute ssh httpbin
 docker run -p 80:80 -d kennethreitz/httpbin
+```
+
+## Configure App to Use Egress Gateway
+
+```bash
+kubectl apply -f egress-serviceentry.yaml
+kubectl apply -f egress-destinationrule.yaml
+kubectl apply -f egress-gateway.yaml
+kubectl apply -f egress-virtualservice.yaml
+```
+
+## Test Connectivity and Grab Origin IP
+
+```bash
+APP_POD=$(kubectl get pods -l app=sleep -o jsonpath={.items..metadata.name})
+kubectl exec -it $APP_POD -c sleep -- curl [VM_EXTERNAL_IP]/ip
 ```
 
 ## Configure Firewall
 
 ```bash
-gcloud compute --project=sndp-next firewall-rules create httpbin-allow-80-egressgateway \
+gcloud compute firewall-rules create httpbin-allow-80-egressgateway \
 --description="Allow traffic on tcp:80 only from istio-egressgateway" \
 --direction=INGRESS \
 --priority=1000 \
 --network=default \
 --action=ALLOW \
 --rules=tcp:80 \
---source-ranges=10.40.1.9 \
---target-tags=egresstesting
+--source-ranges=[SOURCE_IP_ADDRESS] \
+--target-tags=vm-egress-gateway-test
 ```
