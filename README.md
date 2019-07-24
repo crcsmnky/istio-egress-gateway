@@ -81,6 +81,9 @@ docker run -p 80:80 -d kennethreitz/httpbin
 
 ## Configure App to Use Egress Gateway
 
+NOTE: still to be cleared up, but I needed to deploy the service entry into `-n istio-system`
+... will dig in more
+
 ```bash
 kubectl apply -f egress-serviceentry.yaml
 kubectl apply -f egress-destinationrule.yaml
