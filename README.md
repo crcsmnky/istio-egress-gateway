@@ -51,8 +51,10 @@ helm template install/kubernetes/helm/istio \
 
 ## Deploy Test Apps
 
+If not using auto-injection, do this. Otherwise, just deploy without explicit injection
+
 ```bash
-kubectl apply -f samples/sleep/sleep.yaml
+kubectl apply -f <(istioctl kube-inject -f samples/sleep/sleep.yaml)
 ```
 
 ```bash
@@ -73,7 +75,7 @@ gcloud compute instances create httpbin \
 ```
 
 ```bash
-gcloud compute ssh httpbin
+gcloud compute ssh httpbin --zone us-central1-f
 docker run -p 80:80 -d kennethreitz/httpbin
 ```
 
@@ -86,11 +88,19 @@ kubectl apply -f egress-gateway.yaml
 kubectl apply -f egress-virtualservice.yaml
 ```
 
+
+## Getting external IP address from cluster
+```bash
+gcloud compute instances list
+```
+
+Note, we will need to verify that traffic is indeed coming from the egress gateway 
+
 ## Test Connectivity and Grab Origin IP
 
 ```bash
 APP_POD=$(kubectl get pods -l app=sleep -o jsonpath={.items..metadata.name})
-kubectl exec -it $APP_POD -c sleep -- curl [VM_EXTERNAL_IP]/ip
+kubectl exec -it $APP_POD -c sleep -- curl -v -H "Host: httpbin.gcp.external" http://192.1.1.1/headers
 ```
 
 ## Configure Firewall

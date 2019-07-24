@@ -11,4 +11,4 @@ spec:
       name: http
       protocol: HTTP
     hosts:
-    - 35.202.165.84
+    - httpbin.gcp.external
