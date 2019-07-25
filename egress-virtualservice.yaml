@@ -4,7 +4,7 @@ metadata:
   name: vs-httpbin-egress
 spec:
   hosts:
-  - 35.202.165.84
+  - httpbin.gcp.external
   gateways:
   - gw-egress
   - mesh
@@ -26,7 +26,7 @@ spec:
       port: 80
     route:
     - destination:
-        host: httpbin
+        host: httpbin.gcp.external
         port:
           number: 80
       weight: 100

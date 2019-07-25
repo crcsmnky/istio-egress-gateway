@@ -1,14 +1,19 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: ServiceEntry
 metadata:
-  name: httpbin
+  name: se-httpbin
 spec:
   hosts:
-  - httpbin
+  - httpbin.gcp.external
   addresses:
-  - 35.202.165.84
+  - 34.67.71.77
   ports:
   - number: 80
     name: http-port
-    protocol: HTTP
-  resolution: NONE
+    protocol: TCP
+  resolution: STATIC
+  location: MESH_EXTERNAL
+  endpoints:
+  - address: 34.67.71.77
+  exportTo: ["."]
+
